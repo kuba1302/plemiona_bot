@@ -2,6 +2,8 @@ from selenium import webdriver
 from time import sleep
 import random
 from password import login, password
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import ElementNotInteractableException
 
 class PlemionaBot:
     def __init__(self):
@@ -16,7 +18,7 @@ class PlemionaBot:
         try:
             self.driver.find_element_by_xpath('/html/body/div[11]/div[1]/div/a').click()
             print("Closing pop-up 1")
-        except:
+        except NoSuchElementException:
             print("Pop-up 1 not found")
 
     def close_popup2(self):
@@ -24,7 +26,7 @@ class PlemionaBot:
         try:
             self.driver.find_element_by_xpath('/html/body/div[11]/div/div/div/div/button[1]').click()
             print("Closing pop-up 2")
-        except:
+        except NoSuchElementException:
             print("Pop-up 2 not found")
 
     def close_popup3(self):
@@ -32,7 +34,7 @@ class PlemionaBot:
         try:
             self.driver.find_element_by_xpath('/html/body/div[11]/div[1]/div/div/div[2]/a').click()
             print("Closing pop-up 3")
-        except:
+        except NoSuchElementException:
             print("Pop-up 3 not found")
     def login(self):
         print("Loging in...")
@@ -53,39 +55,71 @@ class PlemionaBot:
         self.close_popup1()
         self.close_popup2()
 
+    def handle_exception1(self,a):
+        try:
+            a
+        except ElementNotInteractableException:
+            print("Element cannot be clicked")
+
     # Whole village view
     def village_view(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[1]'
+
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[1]'
                                               '/tbody/tr/td[1]/table/tbody/tr[1]/td/table/tbody/tr/td[1]/a').click()
+        self.handle_exception1(a)
     # Views of particular buildings
     def ratusz_view(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/'
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/'
                                               'tbody/tr/td/table/tbody/tr/td[1]/div[1]/div/table/tbody/tr[1]/td/a').click()
+        self.handle_exception1(a)
     def koszary_view(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
                                           'tr/td/table/tbody/tr/td[1]/div[1]/div/table/tbody/tr[2]/td/a').click()
+        self.handle_exception1(a)
+
+    def check_resources(self):
+        resources = {
+            'drewno': self.driver.find_element_by_id('wood').text,
+            'glina' : self.driver.find_element_by_id('stone').text,
+            'zelazo' : self.driver.find_element_by_id('iron').text,
+        }
+        for x in resources:
+            print(x, resources[x])
+
     # functions to upgrade every building in town hole
     def ratusz_build(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
                                               '/tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[2]/td[7]/a[2]').click()
+        self.handle_exception1(a)
     def koszary_build(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
                                           'tr/td/div/table[1]/tbody/tr[3]/td[7]/a[2]').click()
+        self.handle_exception1(a)
     def tartak_build(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
-                                          'tr/td/div/table[1]/tbody/tr[2]/td[7]/a[2]').click()
-    def cegielnia_build(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
                                           'tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[7]/td[7]/a[2]').click()
+        self.handle_exception1(a)
+    def cegielnia_build(self):
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
+                                          'tr/td/table/tbody/tr/td/div[2]/table[1]/tbody/tr[8]/td[7]/a[2]').click()
+        self.handle_exception1(a)
     def huta_build(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
-                                          'tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[8]/td[7]/a[2]').click()
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
+                                          'tr/td/div[2]/table[1]/tbody/tr[9]/td[7]/a[2]').click()
+        self.handle_exception1(a)
     def zagroda_build(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
-                                          'tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[9]/td[7]/a[2]').click()
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
+                                          'tr/td/table/tbody/tr/td/div[2]/table[1]/tbody/tr[10]/td[7]/a[2]').click()
+        self.handle_exception1(a)
     def spichlerz_build(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
-                                          'tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[10]/td[7]/a[2]').click()
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
+                                          'tr/td/table/tbody/tr/td/div[2]/table[1]/tbody/tr[11]/td[7]/a[2]').click()
+        self.handle_exception1(a)
     def schowek_build(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
-                                          'tr/td/div/table[1]/tbody/tr[11]/td[7]/a[2]').click()
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
+                                          'tr/td/div[2]/table[1]/tbody/tr[12]/td[7]/a[2]').click()
+        self.handle_exception1(a)
+    def mur_build(self):
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
+                                          'tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[13]/td[7]/a[2]').click()
+        self.handle_exception1(a)
