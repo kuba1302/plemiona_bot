@@ -36,6 +36,7 @@ class PlemionaBot:
             print("Closing pop-up 3")
         except NoSuchElementException:
             print("Pop-up 3 not found")
+
     def login(self):
         print("Loging in...")
         self.driver.get("https://www.plemiona.pl")
@@ -85,8 +86,35 @@ class PlemionaBot:
         }
         for x in resources:
             print(x, resources[x])
+    # Recrouting diffrent units
+    def recrout_pikinier(self, number):
+        self.driver.find_element_by_id('spear_0').send_keys(number)
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
+                                          'tr/td/table/tbody/tr/td/form/table/tbody/tr[3]/td[2]/input').click()
+        self.handle_exception1(a)
+
 
     # functions to upgrade every building in town hole
+
+    build_dict = {
+        'ratusz' : 2,
+        'koszary' : 3,
+        'tartak' : 7,
+        'cegielnia' : 8,
+        'huta' : 9,
+        'zagroda' : 10,
+        'spichlerz': 11,
+        'schowek' : 12,
+        'mur' : 13
+                 }
+
+    # Building names are changing :/
+    def building(self, name):
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
+                                              '/tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[{}]/td[7]/a[2]'.format(self.build_dict[name])).click()
+        self.handle_exception1(a)
+        print("Building {}".format(name))
+
     def ratusz_build(self):
         a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
                                               '/tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[2]/td[7]/a[2]').click()
