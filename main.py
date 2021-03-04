@@ -4,6 +4,7 @@ import random
 from password import login, password
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import ElementNotInteractableException
+import pandas as pd
 
 class PlemionaBot:
     def __init__(self):
@@ -84,8 +85,11 @@ class PlemionaBot:
             'glina' : self.driver.find_element_by_id('stone').text,
             'zelazo' : self.driver.find_element_by_id('iron').text,
         }
+        global resources_df
+        resources_df= pd.DataFrame(resources, index=[0])
         for x in resources:
             print(x, resources[x])
+
     # Recrouting diffrent units
     def recrout_pikinier(self, number):
         self.driver.find_element_by_id('spear_0').send_keys(number)
@@ -95,59 +99,48 @@ class PlemionaBot:
 
 
     # functions to upgrade every building in town hole
-
-    build_dict = {
-        'ratusz' : 2,
-        'koszary' : 3,
-        'tartak' : 7,
-        'cegielnia' : 8,
-        'huta' : 9,
-        'zagroda' : 10,
-        'spichlerz': 11,
-        'schowek' : 12,
-        'mur' : 13
+    def build_info(self):
+        build_dict = {
+            'ratusz' : 1,
+            'koszary' : 2,
+            'rynek' : 3,
+            'tartak' : 4,
+            'cegielnia' : 5,
+            'huta' : 6,
+            'zagroda' : 7,
+            'spichlerz': 8,
+            'schowek' : 9,
+            'mur' : 10
                  }
+        return build_dict
 
-    # Building names are changing :/
+    def extract(self, driver_info):
+        list = []
+        for i in range(len(driver_info)):
+            list.append(driver_info[i].text)
+        return list
+
+    def build_resources_needed(self):
+        self.ratusz_view()
+        global building_cost
+        data = {
+            'drewno' : self.extract(self.driver.find_elements_by_class_name('cost_wood')),
+            'glina' : self.extract(self.driver.find_elements_by_class_name('cost_stone')),
+            'zelazo' : self.extract(self.driver.find_elements_by_class_name('cost_iron'))
+
+        }
+        #self.driver.find_elements_by_class_name('cost_wood'
+        building_cost = pd.DataFrame(data)
+        names = ['ratusz', 'koszary', 'kuznia', 'rynek', 'tartak', 'cegielnia', 'huta', 'zagroda', 'spichlerz', 'schowek', 'mur']
+        building_cost.insert(loc=0, column='buildings', value=names)
+        print(building_cost)
+
     def building(self, name):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
-                                              '/tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[{}]/td[7]/a[2]'.format(self.build_dict[name])).click()
+        build_btns = self.driver.find_elements_by_css_selector('a.btn.btn-build')
+        a = build_btns[self.build_info()[name]]
         self.handle_exception1(a)
         print("Building {}".format(name))
 
-    def ratusz_build(self):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
-                                              '/tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[2]/td[7]/a[2]').click()
-        self.handle_exception1(a)
-    def koszary_build(self):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
-                                          'tr/td/div/table[1]/tbody/tr[3]/td[7]/a[2]').click()
-        self.handle_exception1(a)
-    def tartak_build(self):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
-                                          'tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[7]/td[7]/a[2]').click()
-        self.handle_exception1(a)
-    def cegielnia_build(self):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
-                                          'tr/td/table/tbody/tr/td/div[2]/table[1]/tbody/tr[8]/td[7]/a[2]').click()
-        self.handle_exception1(a)
-    def huta_build(self):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
-                                          'tr/td/div[2]/table[1]/tbody/tr[9]/td[7]/a[2]').click()
-        self.handle_exception1(a)
-    def zagroda_build(self):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
-                                          'tr/td/table/tbody/tr/td/div[2]/table[1]/tbody/tr[10]/td[7]/a[2]').click()
-        self.handle_exception1(a)
-    def spichlerz_build(self):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
-                                          'tr/td/table/tbody/tr/td/div[2]/table[1]/tbody/tr[11]/td[7]/a[2]').click()
-        self.handle_exception1(a)
-    def schowek_build(self):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
-                                          'tr/td/div[2]/table[1]/tbody/tr[12]/td[7]/a[2]').click()
-        self.handle_exception1(a)
-    def mur_build(self):
-        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
-                                          'tr/td/table/tbody/tr/td/div/table[1]/tbody/tr[13]/td[7]/a[2]').click()
-        self.handle_exception1(a)
+    def robienie_darmowki(self):
+        pass
+
