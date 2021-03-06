@@ -1,10 +1,12 @@
 from selenium import webdriver
 from time import sleep
 import random
-from password import login, password
+from passwords import login, password
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import ElementNotInteractableException
 import pandas as pd
+import numpy as np
+import datetime
 
 class PlemionaBot:
     def __init__(self):
@@ -37,6 +39,11 @@ class PlemionaBot:
             print("Closing pop-up 3")
         except NoSuchElementException:
             print("Pop-up 3 not found")
+
+    def close_all_popups(self):
+        self.close_popup1()
+        self.close_popup2()
+        self.close_popup3()
 
     def login(self):
         print("Loging in...")
@@ -77,6 +84,11 @@ class PlemionaBot:
     def koszary_view(self):
         a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
                                           'tr/td/table/tbody/tr/td[1]/div[1]/div/table/tbody/tr[2]/td/a').click()
+        self.handle_exception1(a)
+
+    def plac_view(self):
+        a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
+                                              'tr/td/table/tbody/tr/td[1]/div[1]/div/table/tbody/tr[5]/td/a').click()
         self.handle_exception1(a)
 
     def check_resources(self):
@@ -141,6 +153,51 @@ class PlemionaBot:
         self.handle_exception1(a)
         print("Building {}".format(name))
 
-    def robienie_darmowki(self):
-        pass
+    def check_time(self, a, b, v):
+        # a = your village coords
+        # b = enemy village coords
+        # v = speed of the slowest unit
+        a = np.array(a)
+        b = np.array(b)
+        c = np.absolute(a - b)
+        v = v / 60
+        s = np.hypot(c[0], c[1])
+        time_in_s = s / (v)
+        time_in_s = np.around(time_in_s, 0)
+        return time_in_s
 
+    def hour_of_sending_attack(self, a, b, v, time):
+        #("year, month, day, hour, minute, seconds, 1/100000 s ")
+        travel_time = self.check_time(a, b, v)
+        t_wejscia = datetime.datetime(time[0], time[1], time[2], time[3], time[4], time[5], time[6])
+        t_wyjscia = t_wejscia - datetime.timedelta(seconds=travel_time)
+        return t_wyjscia
+
+    def enter_attack_details(self, armia):
+        id_dict = {
+            'pik' : ['spear', armia[0]],
+            'miecz' : ['sword', armia[1]],
+            'top' : ['axe', armia[2]],
+            'luk' : ['archer', armia[3]],
+            'zw' : ['spy', armia[4]],
+            'lk' : ['light', armia[5]],
+            'luklk' : ['marcher', armia[6]],
+            'ck' : ['heavy', armia[7]],
+            'tar' : ['ram', armia[8]],
+            'kat' : ['catapult', armia[9]],
+            'ryc' : ['knight', armia[10]],
+            'szl' : ['snob', armia[11]],
+        }
+        for key in id_dict:
+            self.driver.find_element_by_id('unit_input_{}'.format(id_dict[key][0])).send_keys(id_dict[key][1])
+
+    def enter_coords(self, b):
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
+                                          '/tr/td/table/tbody/tr/td/form/div[1]/table/tbody/tr[1]/td/div[2]/input').send_keys('%|%' % (b[0], b[1]))
+
+
+    def send_attack(self, a, b, v, time, army):
+        self.village_view()
+        self.plac_view()
+        #self.hour_of_sending_attack(a, b, v, time)
+        self.enter_attack_details(army)
