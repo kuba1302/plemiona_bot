@@ -7,6 +7,7 @@ from selenium.common.exceptions import ElementNotInteractableException
 import pandas as pd
 import numpy as np
 import datetime
+import threading
 
 class PlemionaBot:
     def __init__(self):
@@ -14,7 +15,7 @@ class PlemionaBot:
         self.driver = webdriver.Chrome(path)
 
     def wait(self):
-        sleep(random.uniform(1, 2.5))
+        sleep(random.uniform(1, 1.5))
 
     def close_popup1(self):
         # The most common popup, daily
@@ -190,14 +191,43 @@ class PlemionaBot:
         }
         for key in id_dict:
             self.driver.find_element_by_id('unit_input_{}'.format(id_dict[key][0])).send_keys(id_dict[key][1])
-
+            self.wait()
     def enter_coords(self, b):
         self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
-                                          '/tr/td/table/tbody/tr/td/form/div[1]/table/tbody/tr[1]/td/div[2]/input').send_keys('%|%' % (b[0], b[1]))
+                                          '/tr/td/table/tbody/tr/td/form/div[1]/table/tbody/tr[1]/td/div[2]/input').send_keys('%%%s%%|%%%s%%' % (b[0], b[1]))
 
+    def click_first_attack(self):
+        self.driver.find_element_by_id('target_attack').click()
+
+    def send_attack(self):
+        self.driver.find_element_by_id('troop_confirm_go').click()
 
     def send_attack(self, a, b, v, time, army):
-        self.village_view()
-        self.plac_view()
-        #self.hour_of_sending_attack(a, b, v, time)
-        self.enter_attack_details(army)
+        loop = True
+        print('Sending time:' ,self.hour_of_sending_attack(a, b, v, time))
+
+        while loop:
+            time_left = self.hour_of_sending_attack(a, b, v, time) - datetime.datetime.now()
+            # print('Time before sending:', time_left.seconds)
+            # enter data 20 seconds before sending attack
+            if (self.hour_of_sending_attack(a, b, v, time) - datetime.timedelta(seconds=20)).time()  < datetime.datetime.now().time():
+                self.village_view()
+                self.plac_view()
+                #self.hour_of_sending_attack(a, b, v, time)
+                self.enter_attack_details(army)
+                self.click_first_attack()
+                self.enter_coords(b)
+                if self.hour_of_sending_attack(a, b, v, time) < datetime.datetime.now():
+                    self.send_attack()
+
+
+a = [431, 717]
+b = [429, 716]
+v = 1/18
+army = [10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+time = [2021, 3, 6, 20, 2, 0, 0]
+
+bot = PlemionaBot()
+bot.login()
+bot.wait()
+bot.send_attack(a, b, v, time, army)
