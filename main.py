@@ -195,6 +195,7 @@ class PlemionaBot:
     def enter_coords(self, b):
         self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
                                           '/tr/td/table/tbody/tr/td/form/div[1]/table/tbody/tr[1]/td/div[2]/input').send_keys('%%%s%%|%%%s%%' % (b[0], b[1]))
+        self.wait()
 
     def click_first_attack(self):
         self.driver.find_element_by_id('target_attack').click()
@@ -202,32 +203,51 @@ class PlemionaBot:
     def send_attack(self):
         self.driver.find_element_by_id('troop_confirm_go').click()
 
-    def send_attack(self, a, b, v, time, army):
-        loop = True
-        print('Sending time:' ,self.hour_of_sending_attack(a, b, v, time))
+    def szablon(self):
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
+                                          'tr/td/table/tbody/tr/td/div[2]/table/tbody/tr[2]/td/a').click()
+    def prepare_atack(self, b,army):
+        self.village_view()
+        self.wait()
+        self.plac_view()
+        self.wait()
+        # self.hour_of_sending_attack(a, b, v, time)
+        # self.enter_attack_details(army)
+        self.szablon()
+        self.wait()
+        self.enter_coords(b)
+        self.wait()
+        self.click_first_attack()
 
-        while loop:
-            time_left = self.hour_of_sending_attack(a, b, v, time) - datetime.datetime.now()
-            # print('Time before sending:', time_left.seconds)
-            # enter data 20 seconds before sending attack
-            if (self.hour_of_sending_attack(a, b, v, time) - datetime.timedelta(seconds=20)).time()  < datetime.datetime.now().time():
-                self.village_view()
-                self.plac_view()
-                #self.hour_of_sending_attack(a, b, v, time)
-                self.enter_attack_details(army)
-                self.click_first_attack()
-                self.enter_coords(b)
-                if self.hour_of_sending_attack(a, b, v, time) < datetime.datetime.now():
-                    self.send_attack()
+
+    def atack_bot(self, a, b, v, time, army):
+        time_left_to_preparing = (self.hour_of_sending_attack(a, b, v, time) - datetime.datetime.now() - datetime.timedelta(seconds=20)).total_seconds()
+        print(time_left_to_preparing)
+        timer1 = threading.Timer(time_left_to_preparing, self.prepare_atack(b, army))
+        timer1.start()
+        time_left = (self.hour_of_sending_attack(a, b, v, time) - datetime.datetime.now()).total_seconds()
+        print(time_left)
+        timer_2 = threading.Timer(time_left, self.send_attack()).start()
+        timer_2.start()
+        # print('Time before sending:', time_left.seconds)
+        # enter data 20 seconds before sending attack
+        #     if (self.hour_of_sending_attack(a, b, v, time) - datetime.timedelta(seconds=20)).time()  < datetime.datetime.now().time():
+        #         if self.hour_of_sending_attack(a, b, v, time) < datetime.datetime.now():
+        #             self.send_attack()
 
 
 a = [431, 717]
 b = [429, 716]
 v = 1/18
 army = [10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-time = [2021, 3, 6, 20, 2, 0, 0]
+time = [2021, 3, 7, 2, 10, 0, 0]
 
 bot = PlemionaBot()
 bot.login()
 bot.wait()
-bot.send_attack(a, b, v, time, army)
+bot.prepare_atack(b, army)
+bot.wait()
+bot.send_attack()
+
+
+# bot.atack_bot(a, b, v, time, army)
