@@ -7,7 +7,8 @@ from selenium.common.exceptions import ElementNotInteractableException
 import pandas as pd
 import numpy as np
 import datetime
-import threading
+from apscheduler.schedulers.background import BackgroundScheduler
+
 
 class PlemionaBot:
     def __init__(self):
@@ -221,14 +222,18 @@ class PlemionaBot:
 
 
     def atack_bot(self, a, b, v, time, army):
-        time_left_to_preparing = (self.hour_of_sending_attack(a, b, v, time) - datetime.datetime.now() - datetime.timedelta(seconds=20)).total_seconds()
-        print(time_left_to_preparing)
-        timer1 = threading.Timer(time_left_to_preparing, self.prepare_atack(b, army))
-        timer1.start()
-        time_left = (self.hour_of_sending_attack(a, b, v, time) - datetime.datetime.now()).total_seconds()
-        print(time_left)
-        timer_2 = threading.Timer(time_left, self.send_attack()).start()
-        timer_2.start()
+        sched = BackgroundScheduler()
+        sched.start()
+        time_left_to_preparing = (self.hour_of_sending_attack(a, b, v, time) - datetime.timedelta(seconds=20))
+        time_to_wait = (self.hour_of_sending_attack(a, b, v, time) + datetime.timedelta(seconds=5) - datetime.datetime.now())
+        #correcting error
+        send_time =  (self.hour_of_sending_attack(a, b, v, time) + datetime.timedelta(seconds=1.7))
+        print('Preparation start: ', time_left_to_preparing)
+        sched.add_job(self.prepare_atack, 'date', args=[b, army], next_run_time=time_left_to_preparing, timezone='Europe/Warsaw')
+        sched.add_job(self.send_attack, 'date', next_run_time=send_time, timezone='Europe/Warsaw')
+        print('Hour of sending attack: ', self.hour_of_sending_attack(a, b, v, time))
+        sleep(time_to_wait.seconds)
+        # time_left = (self.hour_of_sending_attack(a, b, v, time) - datetime.datetime.now())
         # print('Time before sending:', time_left.seconds)
         # enter data 20 seconds before sending attack
         #     if (self.hour_of_sending_attack(a, b, v, time) - datetime.timedelta(seconds=20)).time()  < datetime.datetime.now().time():
@@ -240,14 +245,15 @@ a = [431, 717]
 b = [429, 716]
 v = 1/18
 army = [10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-time = [2021, 3, 7, 2, 10, 0, 0]
+time = [2021, 3, 7, 20, 54, 0, 0]
 
 bot = PlemionaBot()
 bot.login()
 bot.wait()
-bot.prepare_atack(b, army)
-bot.wait()
-bot.send_attack()
+bot.atack_bot(a, b, v, time, army)
+# bot.prepare_atack(b, army)
+# bot.wait()
+# bot.send_attack()
 
 
 # bot.atack_bot(a, b, v, time, army)
