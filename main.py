@@ -272,7 +272,7 @@ class PlemionaBot:
         self.driver.find_element_by_xpath('/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/p/a').click()
 
     def jedno_zbieractwo(self):
-        sleep(random.uniform(15, 200))
+        # sleep(random.uniform(15, 200))
         self.login()
         self.wait()
         self.bot_plac_graphic_view()
@@ -294,9 +294,10 @@ class PlemionaBot:
         self.wyloguj()
 
     def perma_zbieranie(self):
-        sched = BackgroundScheduler()
-        sched.add_job(self.jedno_zbieractwo, 'interval', minutes=3, timezone='Europe/Warsaw')
-
+        for i in range(10):
+            print(datetime.datetime.now())
+            self.jedno_zbieractwo()
+            sleep(random.uniform(2900, 3400))
 
 
 a = [431, 717]
@@ -310,7 +311,7 @@ time = [2021, 3, 8, 18, 40, 0, 0]
 # 0:925
 
 bot = PlemionaBot()
-bot.jedno_zbieractwo()
+# bot.jedno_zbieractwo()
 bot.perma_zbieranie()
 # bot.jedno_zbieractwo()
 
