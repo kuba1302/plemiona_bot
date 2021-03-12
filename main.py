@@ -7,7 +7,8 @@ from selenium.common.exceptions import ElementNotInteractableException
 import pandas as pd
 import numpy as np
 import datetime
-import threading
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 class PlemionaBot:
     def __init__(self):
@@ -59,7 +60,8 @@ class PlemionaBot:
         self.driver.find_element_by_class_name('btn-login').click()
         # select active world
         self.wait()
-        self.driver.find_element_by_class_name('world_button_active').click()
+        # self.driver.find_element_by_class_name('world_button_active').click()
+        self.driver.find_element_by_xpath('/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/div[1]/a[2]/span').click()
         # close popup
         self.wait()
         self.close_popup1()
@@ -71,6 +73,7 @@ class PlemionaBot:
         except ElementNotInteractableException:
             print("Element cannot be clicked")
 
+    ### IMPORTANT VILLAGE, RATUSZ, KOSZARY AND PLAC VIEW WORK ONLY WITH NON GRAPHICAL VILLAGE VIEW
     # Whole village view
     def village_view(self):
 
@@ -90,6 +93,10 @@ class PlemionaBot:
     def plac_view(self):
         a = self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/'
                                               'tr/td/table/tbody/tr/td[1]/div[1]/div/table/tbody/tr[5]/td/a').click()
+        self.handle_exception1(a)
+
+    def farm_manager_view(self):
+        a = self.driver.find_element_by_id('manager_icon_farm').click()
         self.handle_exception1(a)
 
     def check_resources(self):
@@ -191,10 +198,11 @@ class PlemionaBot:
         }
         for key in id_dict:
             self.driver.find_element_by_id('unit_input_{}'.format(id_dict[key][0])).send_keys(id_dict[key][1])
-            self.wait()
+
     def enter_coords(self, b):
         self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
                                           '/tr/td/table/tbody/tr/td/form/div[1]/table/tbody/tr[1]/td/div[2]/input').send_keys('%%%s%%|%%%s%%' % (b[0], b[1]))
+        self.wait()
 
     def click_first_attack(self):
         self.driver.find_element_by_id('target_attack').click()
@@ -202,32 +210,111 @@ class PlemionaBot:
     def send_attack(self):
         self.driver.find_element_by_id('troop_confirm_go').click()
 
-    def send_attack(self, a, b, v, time, army):
-        loop = True
-        print('Sending time:' ,self.hour_of_sending_attack(a, b, v, time))
+    def szablon(self):
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
+                                          'tr/td/table/tbody/tr/td/div[2]/table/tbody/tr[2]/td/a').click()
+    def prepare_atack(self, b,army):
+        self.village_view()
+        self.wait()
+        self.plac_view()
+        self.wait()
+        # self.hour_of_sending_attack(a, b, v, time)
+        self.enter_attack_details(army)
+       # self.szablon()
+        self.wait()
+        self.enter_coords(b)
+        self.wait()
+        self.click_first_attack()
 
-        while loop:
-            time_left = self.hour_of_sending_attack(a, b, v, time) - datetime.datetime.now()
-            # print('Time before sending:', time_left.seconds)
-            # enter data 20 seconds before sending attack
-            if (self.hour_of_sending_attack(a, b, v, time) - datetime.timedelta(seconds=20)).time()  < datetime.datetime.now().time():
-                self.village_view()
-                self.plac_view()
-                #self.hour_of_sending_attack(a, b, v, time)
-                self.enter_attack_details(army)
-                self.click_first_attack()
-                self.enter_coords(b)
-                if self.hour_of_sending_attack(a, b, v, time) < datetime.datetime.now():
-                    self.send_attack()
+
+    def atack_bot(self, a, b, v, time, army):
+        sched = BackgroundScheduler()
+        sched.start()
+        time_left_to_preparing = (self.hour_of_sending_attack(a, b, v, time) - datetime.timedelta(seconds=10))
+        time_to_wait = (self.hour_of_sending_attack(a, b, v, time) + datetime.timedelta(seconds=5) - datetime.datetime.now())
+        #correcting error
+        send_time =  (self.hour_of_sending_attack(a, b, v, time) + datetime.timedelta(seconds=0.9))
+        print('Preparation start: ', time_left_to_preparing)
+        sched.add_job(self.prepare_atack, 'date', args=[b, army], next_run_time=time_left_to_preparing, timezone='Europe/Warsaw')
+        sched.add_job(self.send_attack, 'date', next_run_time=send_time, timezone='Europe/Warsaw')
+        print('Hour of sending attack: ', self.hour_of_sending_attack(a, b, v, time))
+        sleep(time_to_wait.seconds)
+
+
+    # click on skrypt
+    def zbieractwo_skrypt(self):
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[1]/tbody/tr/td/table/tbody/tr[2]/td[2]/ul/li[7]/span/a').click()
+
+    def bot_plac_graphic_view(self):
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/'
+                                          'tr/td/table/tbody/tr/td/table/tbody/tr/td[1]/div[1]/div/div/div[17]/a').click()
+
+    def zbieractwo_screen(self):
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table'
+                                          '/tbody/tr/td/table/tbody/tr/td/table[2]/tbody/tr/td[3]/a').click()
+
+    def start_lvl2(self):
+        self.driver.find_element_by_xpath(
+            '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[2]/div[3]/div/div[2]/a[1]').click()
+
+    def start_lvl1(self):
+        self.driver.find_element_by_xpath(
+            '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[1]/div[3]/div/div[2]/a[1]').click()
+
+    def bot_wyloguj(self):
+        pass
+
+    def wioska_graphic_view(self):
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/'
+                                          'tbody/tr/td[1]/table/tbody/tr[1]/td/table/tbody/tr/td[1]/a').click()
+    def wyloguj(self):
+        self.driver.find_element_by_xpath('/html/body/div[8]/div[2]/div/a[6]').click()
+        self.driver.find_element_by_xpath('/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/p/a').click()
+
+    def jedno_zbieractwo(self):
+        # sleep(random.uniform(15, 200))
+        self.login()
+        self.wait()
+        self.bot_plac_graphic_view()
+        self.wait()
+        self.zbieractwo_screen()
+        self.wait()
+        self.zbieractwo_skrypt()
+        self.wait()
+        self.start_lvl2()
+        self.wioska_graphic_view()
+        self.wait()
+        self.bot_plac_graphic_view()
+        self.wait()
+        self.zbieractwo_screen()
+        self.wait()
+        self.zbieractwo_skrypt()
+        self.wait()
+        self.start_lvl1()
+        self.wyloguj()
+
+    def perma_zbieranie(self):
+        for i in range(10):
+            print(datetime.datetime.now())
+            self.jedno_zbieractwo()
+            sleep(random.uniform(2900, 3400))
 
 
 a = [431, 717]
 b = [429, 716]
 v = 1/18
 army = [10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-time = [2021, 3, 6, 20, 2, 0, 0]
+time = [2021, 3, 8, 18, 40, 0, 0]
+# 0.980
+# 0.937
+# 0.928
+# 0:925
 
 bot = PlemionaBot()
-bot.login()
-bot.wait()
-bot.send_attack(a, b, v, time, army)
+# bot.jedno_zbieractwo()
+bot.perma_zbieranie()
+# bot.jedno_zbieractwo()
+
+# bot.check_resources()
+# bot.build_resources_needed()
+# bot.atack_bot(a, b, v, time, army)
