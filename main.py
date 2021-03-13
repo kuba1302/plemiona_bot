@@ -246,13 +246,17 @@ class PlemionaBot:
         self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[1]/tbody/tr/td/table/tbody/tr[2]/td[2]/ul/li[7]/span/a').click()
 
     def bot_plac_graphic_view(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/'
-                                          'tr/td/table/tbody/tr/td/table/tbody/tr/td[1]/div[1]/div/div/div[17]/a').click()
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[1]/tbody/tr/td/table/tbody/tr[2]/td[2]/ul/li[5]/span/a').click()
+
 
     def zbieractwo_screen(self):
         self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table'
                                           '/tbody/tr/td/table/tbody/tr/td/table[2]/tbody/tr/td[3]/a').click()
 
+    def start_lvl3(self):
+        self.driver.find_element_by_xpath(
+            '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[3]/div[3]/div/div[2]/a[1]'
+        ).click()
     def start_lvl2(self):
         self.driver.find_element_by_xpath(
             '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[2]/div[3]/div/div[2]/a[1]').click()
@@ -271,9 +275,21 @@ class PlemionaBot:
         self.driver.find_element_by_xpath('/html/body/div[8]/div[2]/div/a[6]').click()
         self.driver.find_element_by_xpath('/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/p/a').click()
 
+    def farmienie_asysten(self):
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/'
+                                          'table/tbody/tr/td/div[4]/div/table/tbody/tr[3]/td[9]/a').click()
     def jedno_zbieractwo(self):
         # sleep(random.uniform(15, 200))
         self.login()
+        self.wait()
+        self.bot_plac_graphic_view()
+        self.wait()
+        self.zbieractwo_screen()
+        self.wait()
+        self.zbieractwo_skrypt()
+        self.wait()
+        self.start_lvl3()
+        self.wioska_graphic_view()
         self.wait()
         self.bot_plac_graphic_view()
         self.wait()
@@ -294,10 +310,10 @@ class PlemionaBot:
         self.wyloguj()
 
     def perma_zbieranie(self):
-        for i in range(10):
-            print(datetime.datetime.now())
+        sleep(1800)
+        for i in range(12):
+            sleep(random.uniform(2900, 3000))
             self.jedno_zbieractwo()
-            sleep(random.uniform(2900, 3400))
 
 
 a = [431, 717]
@@ -311,7 +327,6 @@ time = [2021, 3, 8, 18, 40, 0, 0]
 # 0:925
 
 bot = PlemionaBot()
-# bot.jedno_zbieractwo()
 bot.perma_zbieranie()
 # bot.jedno_zbieractwo()
 
