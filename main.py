@@ -186,22 +186,21 @@ class PlemionaBot:
             'pik' : ['spear', armia[0]],
             'miecz' : ['sword', armia[1]],
             'top' : ['axe', armia[2]],
-            'luk' : ['archer', armia[3]],
-            'zw' : ['spy', armia[4]],
-            'lk' : ['light', armia[5]],
-            'luklk' : ['marcher', armia[6]],
-            'ck' : ['heavy', armia[7]],
-            'tar' : ['ram', armia[8]],
-            'kat' : ['catapult', armia[9]],
-            'ryc' : ['knight', armia[10]],
-            'szl' : ['snob', armia[11]],
+            'zw' : ['spy', armia[3]],
+            'lk' : ['light', armia[4]],
+            'ck' : ['heavy', armia[5]],
+            'tar' : ['ram', armia[6]],
+            'kat' : ['catapult', armia[7]],
+            'ryc' : ['knight', armia[8]],
+            'szl' : ['snob', armia[9]],
         }
         for key in id_dict:
             self.driver.find_element_by_id('unit_input_{}'.format(id_dict[key][0])).send_keys(id_dict[key][1])
 
     def enter_coords(self, b):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody'
-                                          '/tr/td/table/tbody/tr/td/form/div[1]/table/tbody/tr[1]/td/div[2]/input').send_keys('%%%s%%|%%%s%%' % (b[0], b[1]))
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/'
+                                          'tbody/tr/td/table/tbody/tr/td/form/div[1]/table/tbody/tr[1]/td/'
+                                          'div[2]/input').send_keys('%%%s%%|%%%s%%' % (b[0], b[1]))
         self.wait()
 
     def click_first_attack(self):
@@ -214,9 +213,9 @@ class PlemionaBot:
         self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/'
                                           'tr/td/table/tbody/tr/td/div[2]/table/tbody/tr[2]/td/a').click()
     def prepare_atack(self, b,army):
-        self.village_view()
+        self.wioska_graphic_view()
         self.wait()
-        self.plac_view()
+        self.bot_plac_graphic_view()
         self.wait()
         # self.hour_of_sending_attack(a, b, v, time)
         self.enter_attack_details(army)
@@ -275,12 +274,11 @@ class PlemionaBot:
         self.driver.find_element_by_xpath('/html/body/div[8]/div[2]/div/a[6]').click()
         self.driver.find_element_by_xpath('/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/p/a').click()
 
-    def farmienie_asysten(self):
-        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/'
-                                          'table/tbody/tr/td/div[4]/div/table/tbody/tr[3]/td[9]/a').click()
+    def farmienie_asystent(self):
+        self.driver.find_element_by_xpath('/html/body/table/tbody/tr[1]/td[2]/div/table/tbody/tr/td/table/tbody/tr/td[6]/a[1]').click()
+
     def jedno_zbieractwo(self):
         # sleep(random.uniform(15, 200))
-        self.login()
         self.wait()
         self.bot_plac_graphic_view()
         self.wait()
@@ -307,29 +305,47 @@ class PlemionaBot:
         self.zbieractwo_skrypt()
         self.wait()
         self.start_lvl1()
-        self.wyloguj()
 
-    def perma_zbieranie(self):
-        sleep(1800)
+    def farmienie_asystentem(self):
+        self.farmienie_asystent()
+        self.wait()
+        a_clics = self.driver.find_elements_by_css_selector('a.farm_icon_a')
+        for click in a_clics:
+            try:
+                click.click()
+                sleep(random.uniform(0.2, 0.4))
+            except:
+                break
+
+
+    def farmienie_graczy(self, village_list,  army):
+        for village in village_list:
+            try:
+                self.wait()
+                self.prepare_atack(village, army)
+                self.wait()
+                self.send_attack()
+            except:
+                break 
+
+
+    def perma_zbieranie_farmienie(self, village_list, army):
         for i in range(12):
-            sleep(random.uniform(2900, 3000))
+            self.login()
             self.jedno_zbieractwo()
+            self.farmienie_graczy(village_list, army)
+            self.farmienie_asystentem()
+            self.wyloguj()
+            sleep(random.uniform(2900, 3000))
 
 
-a = [431, 717]
-b = [429, 716]
-v = 1/18
-army = [10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-time = [2021, 3, 8, 18, 40, 0, 0]
-# 0.980
-# 0.937
-# 0.928
-# 0:925
+village_list = [
+    [507, 537], [510, 537], [510, 541],
+    [508, 543], [504, 537], [503, 536],
+    [510, 532], [509, 545], [500, 539],
+    [505, 531],
+]
+army = [0, 0, 0, 0, 2, 0, 0, 0, 0, 0,]
 
 bot = PlemionaBot()
-bot.perma_zbieranie()
-# bot.jedno_zbieractwo()
-
-# bot.check_resources()
-# bot.build_resources_needed()
-# bot.atack_bot(a, b, v, time, army)
+bot.perma_zbieranie_farmienie(village_list, army)
