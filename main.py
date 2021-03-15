@@ -4,6 +4,7 @@ import random
 from passwords import login, password
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.chrome.options import Options
 import pandas as pd
 import numpy as np
 import datetime
@@ -13,8 +14,10 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 class PlemionaBot:
     def __init__(self):
         path = r"C:\Users\Admin\Desktop\chromedriver.exe"
+        self.options = Options()
+        self.options.headless = True
         self.driver = webdriver.Chrome(path)
-
+        
     def wait(self):
         sleep(random.uniform(1, 1.5))
 
@@ -340,12 +343,13 @@ class PlemionaBot:
 
 
 village_list = [
-    [507, 537], [510, 537], [510, 541],
+    [510, 537], [510, 541],
     [508, 543], [504, 537], [503, 536],
     [510, 532], [509, 545], [500, 539],
     [505, 531],
 ]
-army = [0, 0, 0, 0, 2, 0, 0, 0, 0, 0,]
+army = [0, 0, 0, 0, 3, 0, 0, 0, 0, 0,]
 
 bot = PlemionaBot()
 bot.perma_zbieranie_farmienie(village_list, army)
+bot.close()
