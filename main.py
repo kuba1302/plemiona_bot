@@ -64,7 +64,7 @@ class PlemionaBot:
         # select active world
         self.wait()
         # self.driver.find_element_by_class_name('world_button_active').click()
-        self.driver.find_element_by_xpath('/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/div[1]/a[2]/span').click()
+        self.driver.find_element_by_xpath('/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/div[1]/a/span').click()
         # close popup
         self.wait()
         self.close_popup1()
@@ -255,6 +255,11 @@ class PlemionaBot:
         self.driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table'
                                           '/tbody/tr/td/table/tbody/tr/td/table[2]/tbody/tr/td[3]/a').click()
 
+    def start_lvl4(self):
+        self.driver.find_element_by_xpath(
+            '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[4]/div[3]/div/div[2]/a[1]'
+        ).click()
+
     def start_lvl3(self):
         self.driver.find_element_by_xpath(
             '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[3]/div[3]/div/div[2]/a[1]'
@@ -283,6 +288,15 @@ class PlemionaBot:
     def jedno_zbieractwo(self):
         # sleep(random.uniform(15, 200))
         self.wait()
+        self.wioska_graphic_view()
+        self.wait()
+        self.bot_plac_graphic_view()
+        self.wait()
+        self.zbieractwo_screen()
+        self.wait()
+        self.zbieractwo_skrypt()
+        self.wait()
+        self.start_lvl4()
         self.bot_plac_graphic_view()
         self.wait()
         self.zbieractwo_screen()
@@ -316,10 +330,9 @@ class PlemionaBot:
         for click in a_clics:
             try:
                 click.click()
-                sleep(random.uniform(0.2, 0.4))
+                sleep(random.uniform(0.4, 0.6))
             except:
                 break
-
 
     def farmienie_graczy(self, village_list,  army):
         for village in village_list:
@@ -328,6 +341,7 @@ class PlemionaBot:
                 self.prepare_atack(village, army)
                 self.wait()
                 self.send_attack()
+                print(village)
             except:
                 break 
 
@@ -339,17 +353,32 @@ class PlemionaBot:
             self.farmienie_graczy(village_list, army)
             self.farmienie_asystentem()
             self.wyloguj()
-            sleep(random.uniform(2900, 3000))
+            sleep(4440)
+            # next_zbieractwo_time = datetime.datetime.now() + datetime.timedelta(seconds=3600)
+            # print('Następne zbieractwo o {}'.format(next_zbieractwo_time))
+            # time_counter = 0
+            # for a in range(3):
+            #     if time_counter != 0:
+            #         self.login()
+            #     time_counter += 1
+            #     self.farmienie_graczy(village_list, army)
+            #     self.farmienie_asystentem()
+            #     next_start_time = datetime.datetime.now() + datetime.timedelta(seconds=1200)
+            #     print('Następne farmienie o {}'.format(next_start_time))
+            #     if time_counter != 3:
+            #         self.wyloguj()
+            #     sleep(1200)
+
 
 
 village_list = [
-    [510, 537], [510, 541],
-    [508, 543], [504, 537], [503, 536],
-    [510, 532], [509, 545], [500, 539],
-    [505, 531],
+     [510, 541], [509, 541], [508,541],
+     [512, 542], [507, 537],
+    [510, 532],
+    [516, 530], [505, 540], [508, 544],
+    [516,542], [511, 549], [511, 551]
 ]
-army = [0, 0, 0, 0, 3, 0, 0, 0, 0, 0,]
+army = [0, 0, 0, 0, 15, 0, 0, 0, 0, 0,]
 
 bot = PlemionaBot()
 bot.perma_zbieranie_farmienie(village_list, army)
-bot.close()
