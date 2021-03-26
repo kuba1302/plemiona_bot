@@ -13,10 +13,10 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 class PlemionaBot:
     def __init__(self):
-        path = r"C:\Users\Admin\Desktop\chromedriver.exe"
+        path = "/usr/bin/chromedriver"
         self.options = Options()
         self.options.headless = True
-        self.driver = webdriver.Chrome(path)
+        self.driver = webdriver.Chrome(path) #, options=self.options)
         
     def wait(self):
         sleep(random.uniform(1, 1.5))
@@ -259,18 +259,23 @@ class PlemionaBot:
         self.driver.find_element_by_xpath(
             '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[4]/div[3]/div/div[2]/a[1]'
         ).click()
+        print('Zbieractwo lvl 4')
 
     def start_lvl3(self):
         self.driver.find_element_by_xpath(
             '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[3]/div[3]/div/div[2]/a[1]'
         ).click()
+        print('Zbieractwo lvl 3')
+
     def start_lvl2(self):
         self.driver.find_element_by_xpath(
             '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[2]/div[3]/div/div[2]/a[1]').click()
+        print('Zbieractwo lvl 2')
 
     def start_lvl1(self):
         self.driver.find_element_by_xpath(
             '/html/body/table/tbody/tr[2]/td[2]/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/div[1]/div[3]/div/div[2]/a[1]').click()
+        print('Zbieractwo lvl 1')
 
     def bot_wyloguj(self):
         pass
@@ -327,10 +332,11 @@ class PlemionaBot:
         self.farmienie_asystent()
         self.wait()
         a_clics = self.driver.find_elements_by_css_selector('a.farm_icon_a')
+        print("Farmienie asystentem")
         for click in a_clics:
             try:
                 click.click()
-                sleep(random.uniform(0.4, 0.6))
+                sleep(random.uniform(1, 1.2))
             except:
                 break
 
@@ -341,19 +347,31 @@ class PlemionaBot:
                 self.prepare_atack(village, army)
                 self.wait()
                 self.send_attack()
-                print(village)
+                print('Farmienie wioski :', village)
             except:
                 break 
+    def farmienie_gracza(self, village=[507,542], army = [0, 0, 0, 0, 100, 0, 0, 0, 0, 0,]):
+        try:
+            self.wait()
+            self.prepare_atack(village, army)
+            self.wait()
+            self.send_attack()
+            print('Farmienie wioski :', village)
+        except NoSuchElementException:
+            print('error')
 
 
     def perma_zbieranie_farmienie(self, village_list, army):
         for i in range(12):
             self.login()
+            sleep(20*60)
             self.jedno_zbieractwo()
             self.farmienie_graczy(village_list, army)
+            self.farmienie_gracza()
             self.farmienie_asystentem()
             self.wyloguj()
-            sleep(4440)
+            sleep(100*60)
+
             # next_zbieractwo_time = datetime.datetime.now() + datetime.timedelta(seconds=3600)
             # print('Następne zbieractwo o {}'.format(next_zbieractwo_time))
             # time_counter = 0
@@ -372,13 +390,9 @@ class PlemionaBot:
 
 
 village_list = [
-     [510, 541], [509, 541], [508,541],
-     [512, 542], [507, 537],
-    [510, 532],
-    [516, 530], [505, 540], [508, 544],
+    [505, 540], [508, 544],
     [516,542], [511, 549], [511, 551]
 ]
 army = [0, 0, 0, 0, 15, 0, 0, 0, 0, 0,]
-
 bot = PlemionaBot()
 bot.perma_zbieranie_farmienie(village_list, army)
